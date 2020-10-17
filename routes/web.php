@@ -21,4 +21,7 @@ Route::get('/login', 'Auth\LoginController@showLoginForm');
 Route::post('/login', 'Auth\LoginController@login')->name('login');
 Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/withdraw', 'WithdrawController@index');
+Route::get('/withdraw/detail/{id}', 'WithdrawController@detail');
+Route::get('/withdraw/create', 'WithdrawController@showCreateForm');
+Route::post('/withdraw/create', 'WithdrawController@store');
