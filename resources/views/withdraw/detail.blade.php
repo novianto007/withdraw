@@ -59,6 +59,7 @@
                                     <span>Status History</span>
                                 </div>
                                 <div class="col-md-6">
+                                    @if($enableStatusCheck)
                                     <a class="btn btn-success float-right mb-2" href="{{ url('withdraw/update-status/'. $withdraw->id) }}" onclick="event.preventDefault();
                                                      document.getElementById('check-status-form').submit();">
                                         Check Status Update
@@ -67,6 +68,7 @@
                                     <form id="check-status-form" action="{{ url('withdraw/update-status/'. $withdraw->id) }}" method="POST" class="d-none">
                                         @csrf
                                     </form>
+                                    @endif
                                 </div>
                             </div>
                             <table class="table table-striped table-bordered table-status-inspeksi">

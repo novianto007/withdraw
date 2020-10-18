@@ -10,6 +10,7 @@ class Withdraw extends Model
     const UPDATED_AT = null;
 
     public static $DEFAULT_STATUS = "WAITING_TO_PROCESS";
+    public static $FAILED_STATUS = "FAILED";
 
     /**
      * The attributes that are mass assignable.

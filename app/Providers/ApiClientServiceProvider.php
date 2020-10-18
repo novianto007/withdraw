@@ -22,7 +22,9 @@ class ApiClientServiceProvider extends ServiceProvider
                 'base_uri' => env('SBIG_API_URL'),
                 'auth' => [
                     env('SBIG_BASIC_TOKEN'), ''
-                ]
+                ],
+                'timeout' => 10, 
+                'connect_timeout' => 10
             ];
             return new Client($options);
         });

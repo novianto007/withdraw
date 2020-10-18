@@ -21,7 +21,9 @@ class WithdrawRepository
 
     public function getById(int $id)
     {
-        $withdraw = $this->model->with('statusHistories')->where('id', $id)->first();
+        $withdraw = $this->model->with(['statusHistories' => function ($query) {
+            $query->orderByDesc('timestamp');
+        }])->where('id', $id)->first();
         return $withdraw;
     }
 

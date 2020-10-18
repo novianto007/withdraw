@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CreateDisbursement;
+use App\Models\Withdraw;
 use App\Repositories\WithdrawRepository;
 use App\Services\WithdrawService;
 use Illuminate\Http\Request;
@@ -61,9 +63,7 @@ class WithdrawController extends Controller
             'remark' => 'required|string',
         ]);
         $withdrawId = $this->repository->save($data, Auth::user()->id);
-        $result = $service->createDisbursement($data);
-        $result['trx_id'] = $result['id'];
-        $this->repository->update($result, $withdrawId);
+        CreateDisbursement::dispatch($data, $withdrawId);
         return redirect('withdraw')->with('msg', 'Withdraw created successfully');
     }
 
@@ -71,7 +71,8 @@ class WithdrawController extends Controller
     {
         $withdraw = $this->repository->getById($id);
         if ($withdraw) {
-            return view('withdraw.detail', compact('withdraw'));
+            $enableStatusCheck = (!in_array($withdraw->status, [Withdraw::$DEFAULT_STATUS, Withdraw::$FAILED_STATUS]));
+            return view('withdraw.detail', compact('withdraw', 'enableStatusCheck'));
         }
         abort(404);
     }
