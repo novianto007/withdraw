@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CircuitBreaker;
 use App\Jobs\CreateDisbursement;
 use App\Models\Withdraw;
 use App\Repositories\WithdrawRepository;
 use App\Services\WithdrawService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,12 +81,22 @@ class WithdrawController extends Controller
 
     public function updateStatus($id, WithdrawService $service)
     {
-        $withdraw = $this->repository->getById($id);
-        if ($withdraw) {
-            $result = $service->checkDisbursementStatus($withdraw->trx_id);
-            $this->repository->update($result, $id, $result['status'] != $withdraw->status);
-            return redirect('withdraw/detail/' . $id);
+        $serviceName = 'update-status';
+        if (CircuitBreaker::isAvailable($serviceName, 500)) {
+            $withdraw = $this->repository->getById($id);
+            if (!$withdraw) {
+                abort(404);
+                return;
+            }
+
+            try {
+                $result = $service->checkDisbursementStatus($withdraw->trx_id);
+                $this->repository->update($result, $id, $result['status'] != $withdraw->status);
+                CircuitBreaker::success($serviceName);
+            } catch (Exception $e) {
+                CircuitBreaker::failed($serviceName);
+            }
         }
-        abort(404);
+        return redirect('withdraw/detail/' . $id);
     }
 }

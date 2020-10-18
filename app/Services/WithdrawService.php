@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Helpers\ApiCaller;
+
 class WithdrawService
 {
     private $client;
@@ -13,17 +15,25 @@ class WithdrawService
 
     public function createDisbursement(array $data): array
     {
-        $res = $this->client->request('POST', '/disburse', [
-            'form_params' => $data
-        ]);
-        $content = json_decode($res->getBody()->getContents(), true);
-        return $content;
+        $apiCallFunc = function () use ($data) {
+            $res = $this->client->request('POST', '/disburse', [
+                'form_params' => $data
+            ]);
+            $content = json_decode($res->getBody()->getContents(), true);
+            return $content;
+        };
+
+        return ApiCaller::wrap($apiCallFunc, 2);
     }
 
     public function checkDisbursementStatus(int $trxId): array
     {
-        $res = $this->client->request('GET', '/disburse/' . $trxId);
-        $content = json_decode($res->getBody()->getContents(), true);
-        return $content;
+        $apiCallFunc = function () use ($trxId) {
+            $res = $this->client->request('GET', '/disburse/' . $trxId);
+            $content = json_decode($res->getBody()->getContents(), true);
+            return $content;
+        };
+
+        return ApiCaller::wrap($apiCallFunc, 2);
     }
 }

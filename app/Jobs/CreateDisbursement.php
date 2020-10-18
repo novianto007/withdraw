@@ -21,14 +21,14 @@ class CreateDisbursement implements ShouldQueue
      *
      * @var int
      */
-    public $tries = 3;
+    public $tries = 2;
 
     /**
      * The maximum number of exceptions to allow before failing.
      *
      * @var int
      */
-    public $maxExceptions = 3;
+    public $maxExceptions = 2;
 
     /**
      * The number of seconds the job can run before timing out.
