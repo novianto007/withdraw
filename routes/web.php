@@ -23,5 +23,6 @@ Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::get('/withdraw', 'WithdrawController@index');
 Route::get('/withdraw/detail/{id}', 'WithdrawController@detail');
+Route::post('/withdraw/update-status/{id}', 'WithdrawController@updateStatus');
 Route::get('/withdraw/create', 'WithdrawController@showCreateForm');
 Route::post('/withdraw/create', 'WithdrawController@store');

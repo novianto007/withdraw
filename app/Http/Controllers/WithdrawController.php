@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\WithdrawRepository;
+use App\Services\WithdrawService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,7 +52,7 @@ class WithdrawController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function store(Request $request)
+    public function store(Request $request, WithdrawService $service)
     {
         $data = $request->validate([
             'bank_code' => 'required|string',
@@ -59,7 +60,10 @@ class WithdrawController extends Controller
             'amount' => 'required|integer',
             'remark' => 'required|string',
         ]);
-        $this->repository->save($data, Auth::user()->id);
+        $withdrawId = $this->repository->save($data, Auth::user()->id);
+        $result = $service->createDisbursement($data);
+        $result['trx_id'] = $result['id'];
+        $this->repository->update($result, $withdrawId);
         return redirect('withdraw')->with('msg', 'Withdraw created successfully');
     }
 
@@ -68,6 +72,17 @@ class WithdrawController extends Controller
         $withdraw = $this->repository->getById($id);
         if ($withdraw) {
             return view('withdraw.detail', compact('withdraw'));
+        }
+        abort(404);
+    }
+
+    public function updateStatus($id, WithdrawService $service)
+    {
+        $withdraw = $this->repository->getById($id);
+        if ($withdraw) {
+            $result = $service->checkDisbursementStatus($withdraw->trx_id);
+            $this->repository->update($result, $id, $result['status'] != $withdraw->status);
+            return redirect('withdraw/detail/' . $id);
         }
         abort(404);
     }

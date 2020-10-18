@@ -9,7 +9,7 @@ class Withdraw extends Model
 {
     const UPDATED_AT = null;
 
-    public static $DEFAULT_STATUS = "WAITING_TO_PROCCESS";
+    public static $DEFAULT_STATUS = "WAITING_TO_PROCESS";
 
     /**
      * The attributes that are mass assignable.
@@ -17,8 +17,14 @@ class Withdraw extends Model
      * @var array
      */
     protected $fillable = [
-        'bank_code', 'account_number', 'amount', 'remark'
+        'trx_id', 'bank_code', 'account_number', 'amount', 'remark', 'status',
+        'receipt', 'time_served', 'fee', 'beneficiary_name'
     ];
+
+    public function statusHistories()
+    {
+        return $this->hasMany('App\Models\StatusHistory');
+    }
 
     public function db()
     {

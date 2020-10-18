@@ -20,7 +20,7 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">No</th>
-                                            <th scope="col">Tanggal</th>
+                                            <th scope="col">Date</th>
                                             <th scope="col">Bank Code</th>
                                             <th scope="col">Account Number</th>
                                             <th scope="col">Amount</th>
@@ -30,7 +30,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($withdraws as $no => $withdraw)
+                                        @foreach($withdraws as $withdraw)
                                         <tr>
                                             <td>{{ $number++ }}</td>
                                             <td>{{ $withdraw->created_at }}</td>
