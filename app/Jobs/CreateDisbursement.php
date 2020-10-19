@@ -2,9 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Helpers\CircuitBreaker;
 use App\Models\Withdraw;
 use App\Repositories\WithdrawRepository;
 use App\Services\WithdrawService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -58,9 +60,21 @@ class CreateDisbursement implements ShouldQueue
      */
     public function handle(WithdrawService $service, WithdrawRepository $repository)
     {
-        $result = $service->createDisbursement($this->data);
-        $result['trx_id'] = $result['id'];
-        $repository->update($result, $this->withdrawId);
+        if (!CircuitBreaker::isAvailable('create-disbursement', 500)) {
+            throw new Exception("Server is busy");
+        }
+
+        try {
+            $result = $service->createDisbursement($this->data);
+            $result['trx_id'] = $result['id'];
+            $repository->update($result, $this->withdrawId);
+
+            CircuitBreaker::success('create-disbursement');
+        } catch (Exception $e) {
+            CircuitBreaker::failed('create-disbursement');
+            
+            throw new Exception("Server is busy");
+        }
     }
 
     /**

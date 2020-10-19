@@ -64,6 +64,9 @@ class WithdrawController extends Controller
             'amount' => 'required|integer',
             'remark' => 'required|string',
         ]);
+        if (!CircuitBreaker::attemps('create-disbursement', 500)) {
+            return redirect()->back()->with('msg', 'Server is busy');
+        }
         $withdrawId = $this->repository->save($data, Auth::user()->id);
         CreateDisbursement::dispatch($data, $withdrawId);
         return redirect('withdraw')->with('msg', 'Withdraw created successfully');

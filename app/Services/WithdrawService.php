@@ -23,7 +23,7 @@ class WithdrawService
             return $content;
         };
 
-        return ApiCaller::wrap($apiCallFunc, 2);
+        return ApiCaller::wrap($apiCallFunc, 1);
     }
 
     public function checkDisbursementStatus(int $trxId): array
