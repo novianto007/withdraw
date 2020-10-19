@@ -82,7 +82,7 @@ class WithdrawController extends Controller
     public function updateStatus($id, WithdrawService $service)
     {
         $serviceName = 'update-status';
-        if (CircuitBreaker::isAvailable($serviceName, 500)) {
+        if (CircuitBreaker::attemps($serviceName, 500)) {
             $withdraw = $this->repository->getById($id);
             if (!$withdraw) {
                 abort(404);

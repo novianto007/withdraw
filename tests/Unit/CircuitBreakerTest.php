@@ -13,9 +13,9 @@ class CircuitBreakerTest extends TestCase
     public function testUnavailableOnThresholdReach()
     {
         for ($i = 0; $i < $this->threshold; $i++) {
-            $this->assertTrue(CircuitBreaker::isAvailable($this->serviceName, $this->threshold));
+            $this->assertTrue(CircuitBreaker::attemps($this->serviceName, $this->threshold));
         }
-        $this->assertFalse(CircuitBreaker::isAvailable($this->serviceName, $this->threshold));
+        $this->assertFalse(CircuitBreaker::attemps($this->serviceName, $this->threshold));
     }
 
     public function testAvailableAfterFailedOrSuccess()
@@ -27,7 +27,7 @@ class CircuitBreakerTest extends TestCase
         for ($i = 0; $i < 20; $i++) {
             CircuitBreaker::success($this->serviceName);
         }
-        $this->assertTrue(CircuitBreaker::isAvailable($this->serviceName, $this->threshold));
+        $this->assertTrue(CircuitBreaker::attemps($this->serviceName, $this->threshold));
     }
 
     public function testHalfOpen()
@@ -35,14 +35,14 @@ class CircuitBreakerTest extends TestCase
         for ($i = 0; $i < CircuitBreaker::$maxError; $i++) {
             CircuitBreaker::failed($this->serviceName);
         }
-        $this->assertFalse(CircuitBreaker::isAvailable($this->serviceName, $this->threshold));
+        $this->assertFalse(CircuitBreaker::attemps($this->serviceName, $this->threshold));
         
         sleep(121);
-        $this->assertTrue(CircuitBreaker::isAvailable($this->serviceName, $this->threshold));
+        $this->assertTrue(CircuitBreaker::attemps($this->serviceName, $this->threshold));
         
-        $this->assertFalse(CircuitBreaker::isAvailable($this->serviceName, $this->threshold));
+        $this->assertFalse(CircuitBreaker::attemps($this->serviceName, $this->threshold));
         CircuitBreaker::success($this->serviceName);
         sleep(61);
-        $this->assertTrue(CircuitBreaker::isAvailable($this->serviceName, $this->threshold));
+        $this->assertTrue(CircuitBreaker::attemps($this->serviceName, $this->threshold));
     }
 }

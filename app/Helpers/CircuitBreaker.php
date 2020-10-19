@@ -15,29 +15,29 @@ class CircuitBreaker
         $status = Cache::get('status.' . $serviceName);
         if ($status == null || $status == 'closed') {
             if (Cache::get('attemps.' . $serviceName) < $threshold) {
-                Cache::increment('attemps.' . $serviceName);
                 return true;
             }
             return false;
         }
 
-        if ($status == 'opened') {
+        if ($status == 'opened' || $status == 'half-open') {
             if (Cache::get('lock.' . $serviceName) || Cache::get('half-open-onprocess.' . $serviceName)) {
                 return false;
             }
-            Cache::put('half-open-onprocess.' . $serviceName, true);
-            Cache::increment('attemps.' . $serviceName);
             return true;
         }
+    }
 
-        if($status == 'half-open'){
-            if (Cache::get('lock.' . $serviceName) || Cache::get('half-open-onprocess.' . $serviceName)) {
-                return false;
-            }
-            Cache::put('half-open-onprocess.' . $serviceName, true);
+    public static function attemps(string $serviceName, int $threshold): bool
+    {
+        if(self::isAvailable($serviceName, $threshold)){
             Cache::increment('attemps.' . $serviceName);
+            if( Cache::get('status.' . $serviceName) == 'half-open' ||  Cache::get('status.' . $serviceName) == 'opened'){
+                Cache::put('half-open-onprocess.' . $serviceName, true);
+            }
             return true;
         }
+        return false;
     }
 
     public static function success(string $serviceName)
